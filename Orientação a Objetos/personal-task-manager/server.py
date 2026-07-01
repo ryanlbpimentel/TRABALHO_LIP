@@ -44,6 +44,11 @@ def init_db():
     print("Banco de dados configurado com sucesso!")
 
 class RequestHandler(http.server.BaseHTTPRequestHandler):
+    def row_to_camel(self, row):
+        d = dict(row)
+        mapping = {'user_id': 'userId', 'created_at': 'createdAt', 'completed_at': 'completedAt'}
+        return {mapping.get(k, k): v for k, v in d.items()}
+
     def get_db(self):
         conn = sqlite3.connect(DB_FILE)
         conn.row_factory = sqlite3.Row
@@ -89,7 +94,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                     (user_id,)
                 )
                 rows = cursor.fetchall()
-                tasks = [dict(row) for row in rows]
+                tasks = [self.row_to_camel(row) for row in rows]
                 self.send_json(tasks, 200)
             except Exception as e:
                 self.send_json({'error': str(e)}, 500)
@@ -284,11 +289,18 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                 fields_to_update = []
                 values = []
                 
-                for key in ['title', 'description', 'priority', 'status', 'deadline', 'completed_at']:
-                    sql_key = 'completed_at' if key == 'completed_at' else key
-                    if key in body:
+                field_mapping = {
+                    'title': 'title',
+                    'description': 'description',
+                    'priority': 'priority',
+                    'status': 'status',
+                    'deadline': 'deadline',
+                    'completedAt': 'completed_at',
+                }
+                for js_key, sql_key in field_mapping.items():
+                    if js_key in body:
                         fields_to_update.append(f"{sql_key} = ?")
-                        values.append(body[key])
+                        values.append(body[js_key])
 
                 if not fields_to_update:
                     self.send_json({'error': 'Nenhum campo para atualizar'}, 400)
@@ -302,7 +314,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 
                 cursor.execute('SELECT * FROM tasks WHERE id = ?', (task_id,))
                 updated_row = cursor.fetchone()
-                self.send_json(dict(updated_row), 200)
+                self.send_json(self.row_to_camel(updated_row), 200)
 
             except Exception as e:
                 self.send_json({'error': str(e)}, 500)
