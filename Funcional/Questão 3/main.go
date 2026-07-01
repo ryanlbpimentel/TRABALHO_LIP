@@ -1,16 +1,25 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
 
-func ler(num int) []int {
-	if num == 0 {
+func lerString() string {
+	buffer := bufio.NewReader(os.Stdin)
+	texto, _ := buffer.ReadString('\n')
+	return strings.TrimSpace(texto)
+}
+
+func converterParaInteiros(listaStr []string, indice int) []int {
+	if indice >= len(listaStr) {
 		return []int{}
 	}
-
-	var x int
-	fmt.Scan(&x)
-
-	return append([]int{x}, ler(num-1)...)
+	num, _ := strconv.Atoi(listaStr[indice])
+	return append([]int{num}, converterParaInteiros(listaStr, indice+1)...)
 }
 
 func contar(lista []int, x int) int {
@@ -67,10 +76,9 @@ func imprimir(lista []int) {
 }
 
 func main() {
-	var num int
-	fmt.Scan(&num)
-
-	lista := ler(num)
+	texto := lerString()
+	listaStr := strings.Split(texto, " ")
+	lista := converterParaInteiros(listaStr, 0)
 
 	imprimir(filtrar(lista, lista))
 }
