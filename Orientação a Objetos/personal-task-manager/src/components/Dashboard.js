@@ -18,9 +18,7 @@ export const Dashboard = ({ user, onLogout }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
   
-  // Lista total de tarefas sem filtros (para métricas e lembretes)
   const [rawTasks, setRawTasks] = useState([]);
-  // Lista de tarefas filtradas e ordenadas (para exibição)
   const [tasks, setTasks] = useState([]);
   
   const [search, setSearch] = useState('');
@@ -37,7 +35,6 @@ export const Dashboard = ({ user, onLogout }) => {
     overdue: 0
   });
 
-  // Tema inicial
   useEffect(() => {
     const savedTheme = localStorage.getItem('task_manager_theme') || 'dark';
     setTheme(savedTheme);
@@ -48,7 +45,6 @@ export const Dashboard = ({ user, onLogout }) => {
     }
   }, []);
 
-  // Carrega todas as tarefas do banco de dados relacional (asíncrono)
   const loadTasksFromDb = async () => {
     try {
       const list = await TaskService.getUserTasks(user.id);
@@ -58,14 +54,11 @@ export const Dashboard = ({ user, onLogout }) => {
     }
   };
 
-  // Carrega inicialmente as tarefas ao montar o componente
   useEffect(() => {
     loadTasksFromDb();
   }, []);
 
-  // Processa filtros locais, métricas e lembretes sempre que a lista bruta ou filtros mudarem
   useEffect(() => {
-    // 1. Processa tarefas para exibição
     const queried = TaskService.queryTasks(
       rawTasks,
       { search, status: statusFilter, priority: priorityFilter },
@@ -74,11 +67,9 @@ export const Dashboard = ({ user, onLogout }) => {
     );
     setTasks(queried);
 
-    // 2. Processa lembretes das próximas 48h
     const nearDeadline = TaskService.getNearDeadlineTasks(rawTasks, 48);
     setReminders(nearDeadline);
 
-    // 3. Processa métricas rápidas
     const globalMetrics = ReportService.getSummaryMetrics(rawTasks);
     setMetrics({
       total: globalMetrics.total,
@@ -99,7 +90,6 @@ export const Dashboard = ({ user, onLogout }) => {
     }
   };
 
-  // Lida com adição ou edição (Assíncrono)
   const handleCreateOrUpdateTask = async (data) => {
     try {
       if (taskToEdit) {
@@ -115,7 +105,6 @@ export const Dashboard = ({ user, onLogout }) => {
     }
   };
 
-  // Exclui uma tarefa no banco (Assíncrono)
   const handleDeleteTask = async (id) => {
     if (window.confirm('Tem certeza que deseja excluir esta tarefa?')) {
       try {
@@ -127,7 +116,6 @@ export const Dashboard = ({ user, onLogout }) => {
     }
   };
 
-  // Altera status de uma tarefa no banco (Assíncrono)
   const handleStatusChange = async (id, status) => {
     try {
       await TaskService.updateTask(user.id, id, { status });
@@ -157,7 +145,6 @@ export const Dashboard = ({ user, onLogout }) => {
 
   return html`
     <div class="dashboard-layout animate-fade-in">
-      <!-- Cabeçalho -->
       <header class="header">
         <div class="header-brand">
           <div class="auth-logo" style=${{ width: '36px', height: '36px', marginBottom: 0 }}>
@@ -215,12 +202,9 @@ export const Dashboard = ({ user, onLogout }) => {
         </div>
       </header>
 
-      <!-- Conteúdo Principal -->
       <main class="dashboard-content">
         ${activeTab === 'TAREFAS' ? html`
-          <!-- Seção de Tarefas -->
           <div class="main-panel">
-            <!-- Métricas Rápidas -->
             <div class="metrics-grid">
               <div class="metric-card">
                 <div class="metric-icon" style=${{ backgroundColor: 'var(--primary-glow)', color: 'var(--primary)' }}>
@@ -263,7 +247,6 @@ export const Dashboard = ({ user, onLogout }) => {
               </div>
             </div>
 
-            <!-- Filtros e Busca -->
             <div class="control-bar">
               <div class="search-box">
                 <${Search} class="search-icon" size=${18} />
@@ -333,7 +316,6 @@ export const Dashboard = ({ user, onLogout }) => {
               </div>
             </div>
 
-            <!-- Listagem de Tarefas -->
             <div class="task-grid">
               ${tasks.length === 0 ? html`
                 <div class="no-tasks">
@@ -355,7 +337,6 @@ export const Dashboard = ({ user, onLogout }) => {
             </div>
           </div>
 
-          <!-- Barra Lateral com Lembretes -->
           <div class="sidebar-panel">
             <div class="panel-card">
               <h3 class="panel-title">
@@ -390,7 +371,6 @@ export const Dashboard = ({ user, onLogout }) => {
             </div>
           </div>
         ` : html`
-          <!-- Relatório de Produtividade -->
           <div style=${{ gridColumn: 'span 2' }}>
             <${ReportsPanel} 
               user=${user} 

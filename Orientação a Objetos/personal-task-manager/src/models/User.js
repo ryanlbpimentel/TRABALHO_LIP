@@ -1,4 +1,3 @@
-// Representa um Usuário no sistema.
 export class User {
   constructor({ id, name, username, passwordHash, createdAt }) {
     this.id = id;

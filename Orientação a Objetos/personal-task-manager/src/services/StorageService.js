@@ -1,4 +1,3 @@
-// Serviço utilitário para manipulação do localStorage
 export class StorageService {
   static getItem(key) {
     try {

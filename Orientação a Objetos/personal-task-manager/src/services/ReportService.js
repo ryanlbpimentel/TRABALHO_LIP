@@ -1,4 +1,3 @@
-// Serviço de Análise e Estatísticas de Tarefas.
 export class ReportService {
   static getSummaryMetrics(tasks) {
     const total = tasks.length;

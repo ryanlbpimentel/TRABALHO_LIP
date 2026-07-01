@@ -1,7 +1,6 @@
 import { User } from '../models/User.js';
 import { StorageService } from './StorageService.js';
 
-// Serviço de Autenticação integrado com a API SQL.
 export class AuthService {
   static SESSION_KEY = 'task_manager_active_session';
 
@@ -70,7 +69,6 @@ export class AuthService {
     return new User(activeData);
   }
 
-  // Encerra a sessão ativa do usuário.
   static logout() {
     StorageService.removeItem(this.SESSION_KEY);
   }

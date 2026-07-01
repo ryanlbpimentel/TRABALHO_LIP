@@ -1,4 +1,3 @@
-// Representa uma Tarefa no sistema.
 export class Task {
   constructor({ id, userId, title, description, priority, status, deadline, createdAt, completedAt }) {
     this.id = id;

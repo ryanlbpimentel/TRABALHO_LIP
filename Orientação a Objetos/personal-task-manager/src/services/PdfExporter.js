@@ -1,6 +1,5 @@
 import { jsPDF } from 'jspdf';
 
-// Serviço responsável por gerar relatórios PDF formatados.
 export class PdfExporter {
   static exportTasks(userName, tasks, metrics) {
     const doc = new jsPDF({
@@ -17,8 +16,7 @@ export class PdfExporter {
       minute: '2-digit'
     });
 
-    // 1. Cabeçalho Principal (Fundo Indigo e texto Branco)
-    doc.setFillColor(79, 70, 229); // #4f46e5 (Primary Indigo)
+    doc.setFillColor(79, 70, 229);
     doc.rect(0, 0, 210, 40, 'F');
     
     doc.setTextColor(255, 255, 255);
@@ -30,18 +28,15 @@ export class PdfExporter {
     doc.setFontSize(10);
     doc.text(`Usuário: ${userName}  |  Gerado em: ${nowStr}`, 15, 30);
 
-    // 2. Quadro de Métricas de Produtividade
-    doc.setTextColor(15, 23, 42); // Slate escuro
+    doc.setTextColor(15, 23, 42);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
     doc.text('Resumo de Produtividade', 15, 52);
 
-    // Linha horizontal divisória
-    doc.setDrawColor(226, 232, 240); // Slate claro
+    doc.setDrawColor(226, 232, 240);
     doc.setLineWidth(0.5);
     doc.line(15, 55, 195, 55);
 
-    // Retângulos e dados das métricas
     const cols = [
       { label: 'Total', val: metrics.total.toString(), x: 15 },
       { label: 'Concluídas', val: metrics.completed.toString(), x: 50 },
@@ -51,34 +46,28 @@ export class PdfExporter {
     ];
 
     cols.forEach(col => {
-      // Fundo cinza claro para os cards
       doc.setFillColor(248, 250, 252);
       doc.rect(col.x, 60, 30, 22, 'F');
       
-      // Borda fina
       doc.setDrawColor(226, 232, 240);
       doc.rect(col.x, 60, 30, 22, 'S');
 
-      // Valor centralizado
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
       doc.setTextColor(79, 70, 229);
       doc.text(col.val, col.x + 15, 70, { align: 'center' });
 
-      // Rótulo
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8);
       doc.setTextColor(100, 116, 139);
       doc.text(col.label, col.x + 15, 77, { align: 'center' });
     });
 
-    // Taxa de Conclusão Geral
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(15, 23, 42);
     doc.text(`Taxa Geral de Conclusão: ${metrics.completionRate}%`, 15, 90);
 
-    // 3. Tabela de Tarefas
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
     doc.setTextColor(15, 23, 42);
@@ -86,7 +75,6 @@ export class PdfExporter {
 
     doc.line(15, 108, 195, 108);
 
-    // Cabeçalho da Tabela
     let y = 115;
     doc.setFillColor(241, 245, 249);
     doc.rect(15, y, 180, 8, 'F');
@@ -102,7 +90,6 @@ export class PdfExporter {
 
     y += 8;
 
-    // Linhas de dados
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(15, 23, 42);
@@ -111,12 +98,10 @@ export class PdfExporter {
       doc.text('Nenhuma tarefa cadastrada.', 17, y + 8);
     } else {
       tasks.forEach((task, idx) => {
-        // Nova página se necessário
         if (y > 270) {
           doc.addPage();
           y = 20;
 
-          // Repete cabeçalho na nova página
           doc.setFillColor(241, 245, 249);
           doc.rect(15, y, 180, 8, 'F');
           doc.setFont('helvetica', 'bold');
@@ -131,7 +116,6 @@ export class PdfExporter {
           doc.setTextColor(15, 23, 42);
         }
 
-        // Alternância de cor de fundo das linhas
         if (idx % 2 === 0) {
           doc.setFillColor(255, 255, 255);
         } else {
@@ -141,27 +125,22 @@ export class PdfExporter {
         doc.setDrawColor(241, 245, 249);
         doc.line(15, y + 10, 195, y + 10);
 
-        // Título (truncado se muito longo)
         let title = task.title;
         if (title.length > 25) {
           title = title.substring(0, 22) + '...';
         }
         doc.text(title, 17, y + 6);
 
-        // Prioridade
         doc.text(task.priority, 75, y + 6);
 
-        // Data Limite
         const deadlineStr = new Date(task.deadline).toLocaleDateString('pt-BR');
         doc.text(deadlineStr, 105, y + 6);
 
-        // Status
         let statusLabel = 'Pendente';
         if (task.status === 'EM_ANDAMENTO') statusLabel = 'Em Progresso';
         if (task.status === 'CONCLUIDA') statusLabel = 'Concluída';
         doc.text(statusLabel, 135, y + 6);
 
-        // Conclusão
         const completedStr = task.completedAt 
           ? new Date(task.completedAt).toLocaleDateString('pt-BR') 
           : '-';
@@ -171,13 +150,11 @@ export class PdfExporter {
       });
     }
 
-    // Rodapé simples
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(8);
     doc.setTextColor(148, 163, 184);
     doc.text('Gerado automaticamente pelo Sistema de Gerenciamento de Tarefas Pessoais.', 15, 287);
 
-    // Salva o documento
     doc.save(`relatorio-tarefas-${new Date().toISOString().split('T')[0]}.pdf`);
   }
 }
